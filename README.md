@@ -4,7 +4,7 @@ Adult Resolver Extension for SMU
 1. Import SMU and the XXX SMU Extension to your addon.
 2. Load the script.module.urlresolver.xxx plugins directory from within your addon.
 
-    import urlresolver
+    import urlresolver, os
     
     smu_xxx_path = xbmcaddon.Addon("script.module.urlresolver.xxx").getAddonInfo("path")
     
