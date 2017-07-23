@@ -2,7 +2,7 @@
 <addon id="script.module.urlresolver.xxx" version="1.0.00" name="Adult Resolver SMU Extension" provider-name="jsergio">
 	<requires>
 		<import addon="xbmc.python" version="2.1.0"/>
-        <import addon="script.module.urlresolver" version="3.0.32" />
+        	<import addon="script.module.urlresolver" version="3.0.32" />
 	</requires>
 	<extension point="xbmc.python.module" library="lib" />
 	<extension point="xbmc.addon.metadata">
