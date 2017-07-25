@@ -15,19 +15,15 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 '''
-from urlresolver.plugins.lib import helpers
-from urlresolver.resolver import UrlResolver, ResolverError
+from urlresolver.plugins.__generic_resolver__ import GenericResolver
 
-class GotPornResolver(UrlResolver):
+class GotPornResolver(GenericResolver):
     name = 'gotporn'
     domains = ['gotporn.com']
-    pattern = '(?:\/\/|\.)(gotporn\.com)\/([\w-]+\/video-\d+)'
-    
-    def get_media_url(self, host, media_id):
-        return helpers.get_media_url(self.get_url(host, media_id), patterns=['''(?:src=['"])(?P<url>[^"']+)(?:["']\s*type\=['"]video\/mp4['"])''']).replace(' ', '%20')
+    pattern = '(?://|\.)(gotporn\.com)/[\w-]+/(?:video-)?(\d+)'
 
     def get_url(self, host, media_id):
-        return self._default_get_url(host, media_id, template='http://www.{host}/{media_id}')
+        return self._default_get_url(host, media_id, template='http://www.{host}/video/{media_id}/')
 
     @classmethod
     def _is_enabled(cls):
