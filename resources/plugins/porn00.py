@@ -15,15 +15,54 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 '''
-from urlresolver.plugins.__generic_resolver__ import GenericResolver
+import re
+from urlresolver import common
+from urlresolver.plugins.lib import helpers
+from urlresolver.resolver import UrlResolver, ResolverError
 
-class Porn00Resolver(GenericResolver):
+class Porn00Resolver(UrlResolver):
     name = 'porn00'
-    domains = ['porn00.org']
+    domains = ['porn00.org', 'porn00.com']
     pattern = '(?://|\.)(porn00\.org)/(?:video|plays)/\?v=(\d+)'
+    pattern2 = '(?://|\.)(porn00\.(?:org|com))/([\w\-]+)'
+    
+    def __init__(self):
+        self.net = common.Net()
 
+    def get_media_url(self, host, media_id):
+        print ":::mid2", media_id
+        if not media_id.isdigit():
+            web_url = self.get_url(host, media_id)
+            headers = {'User-Agent': common.RAND_UA}
+            html = self.net.http_GET(web_url, headers=headers).content
+            
+            if html:
+                video_ids = re.findall("""<iframe.+?src=["'].*?\?v=(\d+)["']""", html, re.I)
+                if video_ids:
+                    video_id = video_ids[-1]
+                    return helpers.get_media_url('http://www.porn00.org/video/?v=%s' % video_id).replace(' ', '%20')
+            
+            raise ResolverError('File not found')
+            
+        else:
+            return helpers.get_media_url(self.get_url(host, media_id)).replace(' ', '%20')
+    
+    def get_host_and_id(self, url):
+        if not '/?v=' in url: r = re.search(self.pattern2, url, re.I)
+        else: r = re.search(self.pattern, url, re.I)
+        if r: 
+            return r.groups()
+        else: 
+            return False
+    
     def get_url(self, host, media_id):
-        return self._default_get_url(host, media_id, template='http://www.{host}/video/?v={media_id}')
+        if not media_id.isdigit():
+            return self._default_get_url(host, media_id, template='http://www.porn00.org/{media_id}/')
+        else:
+            return self._default_get_url(host, media_id, template='http://www.porn00.org/video/?v={media_id}')
+            
+    def valid_url(self, url, host):
+        return re.search(self.pattern, url, re.I) or re.search(self.pattern2, url, re.I) or self.name in host
         
     @classmethod
     def _is_enabled(cls):
