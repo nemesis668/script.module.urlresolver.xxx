@@ -15,6 +15,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 '''
+import re, urllib2, ssl
+from urlresolver import common
 from urlresolver.plugins.lib import helpers
 from urlresolver.resolver import UrlResolver, ResolverError
 
@@ -23,8 +25,27 @@ class VirtualPornStarsResolver(UrlResolver):
     domains = ['virtualpornstars.com']
     pattern = '(?://|\.)(virtualpornstars\.com)/(?:\w+/)?([\w\-]+)'
     
+    def __init__(self):
+        self.context = ssl._create_unverified_context()
+
     def get_media_url(self, host, media_id):
-        return helpers.get_media_url(self.get_url(host, media_id), patterns=['''file:\s*["'](?P<url>[^"']+)''']).replace(' ', '%20')
+        web_url = self.get_url(host, media_id)
+        headers = {'User-Agent': common.RAND_UA}
+        request = urllib2.Request(web_url, headers=headers) 
+        response = urllib2.urlopen(request, context=self.context)
+        html = response.read()
+        
+        if html:
+            try:
+                headers.update({'Referer': web_url})
+                source = re.search('''file:\s*["']([^"']+)''', html).groups()[0]
+                
+                return source + helpers.append_headers(headers)
+                
+            except:
+                raise ResolverError('File not found')
+                
+        raise ResolverError('File not found')
 
     def get_url(self, host, media_id):
         return self._default_get_url(host, media_id, template='https://{host}/{media_id}')
