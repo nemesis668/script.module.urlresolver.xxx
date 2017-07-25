@@ -15,20 +15,41 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 '''
+import re
+from urlresolver import common
 from urlresolver.plugins.lib import helpers
 from urlresolver.resolver import UrlResolver, ResolverError
 
 class PornFunResolver(UrlResolver):
     name = 'pornfun'
-    domains = ['pornfun.com']
-    pattern = '(?://|\.)(pornfun\.com)/(?:videos|embed)/(\d+)'
-    
+    domains = ['pornfun.com', '3movs.com']
+    pattern = '(?://|\.)((?:pornfun|3movs)\.com)/(?:embed|videos)/(\d+)'
+
+    def __init__(self):
+        self.net = common.Net()
+
     def get_media_url(self, host, media_id):
-        return helpers.get_media_url(self.get_url(host, media_id), patterns=['''video_url:\s*['"](?P<url>[^'"]+)''']).replace(' ', '%20')
+        web_url = self.get_url(host, media_id)
+        headers = {'User-Agent': common.RAND_UA}
+        html = self.net.http_GET(web_url, headers=headers).content
+        
+        if html:
+            try:
+                headers.update({'Referer': web_url})
+                file = re.search('''video_url:\s*['"]([^"']+)''', html, re.DOTALL).groups()[0]
+                
+                return file + helpers.append_headers(headers)
+                
+            except:
+                raise ResolverError('File not found')
+
+        raise ResolverError('File not found')
 
     def get_url(self, host, media_id):
-        return self._default_get_url(host, media_id, template='https://www.{host}/embed/{media_id}')
-        
+        if host == 'pornfun.com': template = 'https://www.{host}/embed/{media_id}/'
+        else: template = 'http://www.{host}/embed/{media_id}/'
+        return self._default_get_url(host, media_id, template=template)
+
     @classmethod
     def _is_enabled(cls):
         return True
