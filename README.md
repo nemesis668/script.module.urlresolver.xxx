@@ -1,15 +1,13 @@
 # script.module.urlresolver.xxx
 Adult Resolver Extension for SMU
 
-1. Import SMU and the XXX SMU Extension to your addon.
-2. Load the script.module.urlresolver.xxx plugins directory from within your addon.
+1. Import SMU >= 3.0.37 and the XXX SMU Extension to your addon.
+2. Call the urlresolver from your addon to resolve the XXX hosts.
 
-    import urlresolver, os, xbmcaddon
+    * from urlresolver.hmf import HostedMediaFile
+    * url = HostedMediaFile(url=url, include_xxx=True).resolve()
     
-    smu_xxx_path = xbmcaddon.Addon("script.module.urlresolver.xxx").getAddonInfo("path")
+    or
     
-    smu_xxx_dir = os.path.join(smu_xxx_path,'resources/plugins/')
-    
-    urlresolver.add_plugin_dirs(smu_xxx_dir)
-    
-3. Call the urlresolver as normal to resolve the XXX hosts.
+    * import urlresolver
+    * url = urlresolver.resolve(url, include_xxx=True)
