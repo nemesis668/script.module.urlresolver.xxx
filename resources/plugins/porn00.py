@@ -30,7 +30,6 @@ class Porn00Resolver(UrlResolver):
         self.net = common.Net()
 
     def get_media_url(self, host, media_id):
-        print ":::mid2", media_id
         if not media_id.isdigit():
             web_url = self.get_url(host, media_id)
             headers = {'User-Agent': common.RAND_UA}
