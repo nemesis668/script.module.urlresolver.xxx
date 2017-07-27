@@ -23,7 +23,7 @@ from urlresolver.resolver import UrlResolver, ResolverError
 class TubePornClassicResolver(UrlResolver):
     name = 'tubepornclassic'
     domains = ['tubepornclassic.com']
-    pattern = '(?://|\.)(tubepornclassic\.com)/(?:videos)/(.+)/'
+    pattern = '(?://|\.)(tubepornclassic\.com)/videos/(\d+/[^/\s]+)'
     
     def __init__(self):
         self.net = common.Net()
