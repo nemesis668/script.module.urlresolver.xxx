@@ -26,7 +26,8 @@ class VirtualPornStarsResolver(UrlResolver):
     pattern = '(?://|\.)(virtualpornstars\.com)/(?:\w+/)?([\w\-]+)'
     
     def __init__(self):
-        self.context = ssl._create_unverified_context()
+        try: self.context = ssl._create_unverified_context()
+        except: raise ResolverError('Python 2.7.9 or greater required')
 
     def get_media_url(self, host, media_id):
         web_url = self.get_url(host, media_id)
